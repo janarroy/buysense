@@ -1,12 +1,13 @@
 import streamlit as st
-import requests
+from logic import *
 
 # --------------------------
 # Page Config
 # --------------------------
 st.set_page_config(page_title="BuySense", layout="centered")
 
-
+# --------------------------
+# Custom Styling (Cream UI)
 # --------------------------
 st.markdown("""
     <style>
@@ -42,7 +43,7 @@ st.write("")
 st.write("")
 
 # --------------------------
-# Input
+# Input Section
 # --------------------------
 example = "Nike Air Force 1, worn twice, $150"
 
@@ -52,42 +53,48 @@ user_input = st.text_area(
 )
 
 # --------------------------
-# Button
+# Analyze Button
 # --------------------------
 if st.button("Analyze Deal"):
-    response = requests.post(
-        "http://127.0.0.1:5000/analyze",
-        json={"text": user_input}
-    )
 
-    if response.status_code != 200:
-        st.error("Backend error. Check server.")
+    # NLP Pipeline
+    tokens = tokenize(user_input)
+    price = extract_price(user_input)
+    condition = extract_condition(user_input)
+    product = extract_product(user_input)
+
+    if price is None:
+        st.error("No price found in listing.")
     else:
-        data = response.json()
+        result, reasoning = evaluate(product, condition, price, user_input)
 
-        if "error" in data:
-            st.error(data["error"])
+        st.write("")
+
+        # --------------------------
+        # Result Display
+        # --------------------------
+        if result == "Overpriced":
+            st.markdown("### Overpriced")
+        elif result == "Good Deal":
+            st.markdown("### Good Deal")
         else:
-            st.write("")
+            st.markdown("### ⚖️ Fair")
 
-            if data["result"] == "Overpriced":
-                st.markdown(f"### {data['result']}")
-            elif data["result"] == "Good Deal":
-                st.markdown(f"### {data['result']}")
-            else:
-                st.markdown(f"### {data['result']}")
+        # Reasoning
+        st.write(reasoning)
 
-            # Reasoning (MAIN VALUE)
-            st.write(data["reasoning"])
+        st.write("")
 
-            st.write("")
+        # --------------------------
+        # Details Section
+        # --------------------------
+        st.markdown("#### Details")
+        st.write(f"Product: {product}")
+        st.write(f"Condition: {condition}")
+        st.write(f"Price: ${price}")
 
-            # Details
-            st.markdown("#### Details")
-            st.write(f"Product: {data['product']}")
-            st.write(f"Condition: {data['condition']}")
-            st.write(f"Price: ${data['price']}")
-
-            # Optional NLP transparency
-            with st.expander("See NLP breakdown"):
-                st.write(data["tokens"])
+        # --------------------------
+        # NLP Transparency
+        # --------------------------
+        with st.expander("See NLP breakdown"):
+            st.write(tokens)
