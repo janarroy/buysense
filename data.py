@@ -1,94 +1,48 @@
 # data.py
 
 pricing_db = {
-    "nike": {
-        "basic": {
-            "new": (90, 140),
-            "used": (70, 120),
+    "gucci": {
+        "sneakers:sneaker": {
+            "new": (500, 800),
+            "used": (250, 450),
         },
-        "mid": {
-            "new": (120, 200),
-            "used": (90, 170),
+        "sneakers:heel": {
+            "new": (600, 900),
+            "used": (300, 500),
         },
-        "hype": {
-            "new": (200, 400),
-            "used": (150, 350),
+        "sneakers:loafer": {
+            "new": (500, 650),
+            "used": (350, 500),
         },
-    },
-    "jordan": {
-        "basic": {
-            "new": (120, 180),
-            "used": (100, 160),
-        },
-        "mid": {
-            "new": (180, 300),
-            "used": (150, 250),
-        },
-        "hype": {
-            "new": (300, 800),
-            "used": (250, 700),
-        },
-    },
-    "adidas": {
-        "basic": {
-            "new": (80, 130),
-            "used": (60, 110),
-        },
-        "mid": {
-            "new": (120, 200),
-            "used": (90, 170),
-        },
-        "hype": {
-            "new": (200, 500),
-            "used": (150, 400),
-        },
-    },
-    "new balance": {
-        "basic": {
-            "new": (90, 150),
-            "used": (70, 130),
-        },
-        "mid": {
-            "new": (130, 220),
+        "sneakers:sandal": {
+            "new": (250, 350),
             "used": (100, 180),
         },
-    },
-    "asics": {
-        "basic": {
-            "new": (80, 140),
-            "used": (60, 120),
+        "general": {
+            "new": (80, 150),
+            "used": (50, 100),
         },
-        "mid": {
-            "new": (120, 200),
-            "used": (90, 170),
+    },
+    "apple": {
+        "electronics:laptop": {
+            "new": (900, 2500),
+            "used": (300, 1500),
+        },
+    },
+    "samsung": {
+        "electronics:laptop": {
+            "new": (450, 550),
+            "used": (300, 400),
         },
     },
     "converse": {
-        "basic": {
-            "new": (50, 70),
-            "used": (30, 50),
+        "sneakers:low top": {
+            "new": (40, 60),
+            "used": (20, 35),
         },
-        "mid": {
-            "new": (70, 120),
-            "used": (50, 90),
-        },
-        "hype": {
-            "new": (120, 300),
-            "used": (90, 250),
-        },
-    },
-    "reebok": {
-        "basic": {
-            "new": (50, 80),
-            "used": (30, 60),
-        },
-        "mid": {
-            "new": (80, 120),
-            "used": (60, 100),
-        },
-        "hype": {
-            "new": (120, 200),
-            "used": (100, 180),
+        "sneakers:sneaker": {
+            "new": (40, 60),
+            "used": (20, 35),
         },
     },
 }

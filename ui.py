@@ -168,8 +168,8 @@ def verdict_badge_html(verdict):
 
 
 def render_result(result):
-    # AI-only path: no benchmark data but we can still show AI reasoning
-    ai_only = result.get("error") and result.get("price") is not None
+    # ai_only: error exists but we got past validation (product_type set) — show AI reasoning only
+    ai_only = result.get("error") and result.get("product_type") is not None
     if result.get("error") and not ai_only:
         st.error(result["error"])
         return
@@ -190,9 +190,16 @@ def render_result(result):
         st.progress(score / 100)
 
         m1, m2, m3 = st.columns(3)
+        if result.get("model_type"):
+            category_label = result["model_type"].title()
+        elif result.get("product_type") and result["product_type"] != "general":
+            category_label = result["product_type"].title()
+        else:
+            category_label = result["category"].capitalize()
+
         m1.metric("Listing Price", f"${result['price']}")
         m2.metric("Market Range", f"${lo}–${hi}")
-        m3.metric("Category", result["category"].capitalize())
+        m3.metric("Category", category_label)
 
         st.info(f"**Suggested action:** {result['action']}")
 
@@ -212,9 +219,9 @@ def render_result(result):
 
     if not ai_only:
         with st.expander("Extraction details"):
-            st.write(f"**Product:** {result['product']}")
-            st.write(f"**Brand:** {result['brand']}")
-            st.write(f"**Condition:** {result['condition']}")
+            st.write(f"**Product:** {result['product'] or result['raw_text'].split(',')[0].strip()}")
+            st.write(f"**Brand:** {result['brand'] or 'Not detected'}")
+            st.write(f"**Condition:** {result['condition'] if result['condition'] != 'unknown' else 'Not specified'}")
 
 
 # ── Session state ────────────────────────────────────────────────────────────
@@ -227,11 +234,23 @@ def add_item():
     st.session_state.listings.append({"desc": "", "price": "", "result": None})
 
 
+def remove_item(index):
+    st.session_state.listings.pop(index)
+
+
 # ── Input forms ──────────────────────────────────────────────────────────────
 
 for i, item in enumerate(st.session_state.listings):
     label = f"Product {i + 1}" if len(st.session_state.listings) > 1 else "Product"
-    st.markdown(f"**{label}**")
+
+    if len(st.session_state.listings) > 1:
+        col_label, col_remove = st.columns([5, 1])
+        with col_label:
+            st.markdown(f"**{label}**")
+        with col_remove:
+            st.button("✕", key=f"remove_{i}", on_click=remove_item, args=(i,), help="Remove this product")
+    else:
+        st.markdown(f"**{label}**")
 
     col_desc, col_price = st.columns([3, 1])
     with col_desc:
@@ -273,9 +292,11 @@ if analyze_clicked:
         for item in active:
             combined = f"{item['desc'].strip()}, ${item['price'].strip()}" if item["price"].strip() else item["desc"].strip()
             result = analyze_listing(combined)
-            ai_text, used_ai = ai_reasoning(combined, result)
-            if used_ai:
-                result["ai_reasoning"] = ai_text
+            # Only call AI if we passed basic validation (product_type is set)
+            if result.get("product_type") is not None:
+                ai_text, used_ai = ai_reasoning(combined, result)
+                if used_ai:
+                    result["ai_reasoning"] = ai_text
             item["result"] = result
     for item in st.session_state.listings:
         if item not in active:
